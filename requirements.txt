@@ -1,0 +1,13 @@
+-e .
+jupyter
+ipykernel
+pytest
+pytest-cov
+coverage
+flake8
+
+
+
+
+
+

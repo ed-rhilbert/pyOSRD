@@ -1,0 +1,29 @@
+# virtual env
+venv
+wenv
+
+#build
+build/
+dist/
+
+#compiled sources
+*.py[ocd]
+__pycache__
+
+# tests
+.pytest_cache
+htmlcov/
+.coverage
+tmp/
+
+# Egg metadata
+*.egg-info
+.eggs
+.pypirc
+
+# editor/temporary files
+.vscode/
+.ipynb_checkpoints/
+
+
+data/
