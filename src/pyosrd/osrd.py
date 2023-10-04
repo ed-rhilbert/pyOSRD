@@ -1,9 +1,8 @@
-import base64
+
 import importlib
 import json
 import os
 import pkgutil
-import shutil
 import subprocess
 from dataclasses import dataclass
 from importlib.resources import files
@@ -12,10 +11,7 @@ from typing import Any, Dict, List, Union
 
 import networkx as nx
 import numpy as np
-import PIL
-import requests
 from dotenv import load_dotenv
-
 from typing_extensions import Self
 
 import pyosrd.use_cases as use_cases
@@ -74,14 +70,13 @@ class OSRD():
     results_json: str = 'results.json'
     delays_json: str = 'delays.json'
 
-    from .viz.map import folium_map
-    from .viz.space_time_charts import (
-        space_time_chart_plotly,
-        space_time_chart,
-    )
     from .agents import Agent
     from .delays import add_delay, add_delays_in_results, delayed, reset_delays
     from .regulation import add_stop, add_stops
+    from .viz.map import folium_map
+    from .viz.space_time_charts import (space_time_chart,
+                                        space_time_chart_plotly)
+    from .viz.infra_points_as_graph import draw_infra_points
 
     def __post_init__(self):
 
@@ -355,49 +350,6 @@ class OSRD():
                 - point.position
             )
         return offset
-
-    def draw_infra_points(
-        self,
-        save: str | None = None,
-    ) -> PIL.PngImagePlugin.PngImageFile:
-        """Use mermaid.js to display the infra as a graph of specificpoints
-
-        Parameters
-        ----------
-        save : str | None, optional
-            File name to save image, by default None
-
-        Returns
-        -------
-        PIL.Image
-            Inmage of the infra as a graph of points
-        """
-
-        g = 'graph LR;'
-
-        points_all_tracks = self.points_on_track_sections(op_part_tracks=True)
-        for _, points in points_all_tracks.items():
-            for i, _ in enumerate(points[:-1]):
-                g += (f"{points[i].id}<-->{points[i+1].id};")
-
-        graphbytes = g.encode("ascii")
-        base64_bytes = base64.b64encode(graphbytes)
-        base64_string = base64_bytes.decode("ascii")
-        url = "https://mermaid.ink/img/" + base64_string
-
-        response = requests.get(url, stream=True)
-
-        with open('tmp.png', 'wb') as out_file:
-            shutil.copyfileobj(response.raw, out_file)
-        del response
-        image = PIL.Image.open('tmp.png')
-
-        if save:
-            os.rename('tmp.png', save)
-        else:
-            os.remove('tmp.png')
-
-        return image
 
     @property
     def num_trains(self) -> int:
